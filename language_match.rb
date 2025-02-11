@@ -15,7 +15,13 @@ File.open('iso-639-3_20230123.tab', "r") do |input|
   end
 end
 
-output = File.open('sample_algonquian_other.tsv', "w")
+print "Enter MARCXML or XML filepath (with extension): "
+input_filename = gets.chomp
+
+print "Enter output filepath (without extension): "
+output_base = gets.chomp
+output_filename = "#{output_base}.tsv"
+output = File.open(output_filename, "w")
 
 #find matches
 def match_language_names(reader, name_to_code, output)
@@ -29,7 +35,6 @@ def match_language_names(reader, name_to_code, output)
         name_to_code.each do |language, iso_code| # iterates over the iso codes and languages
           if subfield.value =~ /#{language}[\s\.\;\,]/ && !matched_codes.include?(iso_code) #regex to match language names within the subfield value string
             matched_codes << iso_code
-            puts "Matched: #{language} => #{iso_code} in MMSID #{mmsid}"
           end
         end
       end
@@ -38,8 +43,15 @@ def match_language_names(reader, name_to_code, output)
   end       
 end
 
-Dir.glob('sample_algonquian_other.marcxml').each do |file|
-  puts File.basename(file)
-  reader = MARC::XMLReader.new(file, parser:'magic', ignore_namespace: true)
+# Ensure the filename matches a valid file
+files = Dir.glob(input_filename)
+if files.empty?
+  puts "Error: File '#{input_filename}' not found."
+  exit 1
+end
+
+files.each do |file|
+  puts "Processing: #{File.basename(file)}"
+  reader = MARC::XMLReader.new(file, parser: 'magic', ignore_namespace: true)
   match_language_names(reader, name_to_code, output)
 end
