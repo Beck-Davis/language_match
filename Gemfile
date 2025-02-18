@@ -2,9 +2,8 @@
 
 source "https://rubygems.org"
 
-# gem "rails"
+ruby '3.2.2'
 gem "marc"
 gem "nokogiri"
 gem "set"
 gem "byebug"
-gem "fuzzy_match"
